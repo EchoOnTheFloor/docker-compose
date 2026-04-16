@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Service Base de données
+  db:
+    image: mysql:8.0
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_DATABASE: company
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # Service PHP
+  php:
+    build: ./php
+    container_name: php-container
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - db
+
+  # Service Serveur Web Apache
+  apache:
+    image: httpd:2.4-alpine
+    container_name: apache-container
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./apache/my-vhost.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+    # On modifie la conf principale d'Apache pour inclure notre vhost et charger les modules proxy
+    command: >
+      sh -c "echo 'Include conf/extra/httpd-vhosts.conf' >> /usr/local/apache2/conf/httpd.conf &&
+             sed -i 's/#LoadModule proxy_module/LoadModule proxy_module/' /usr/local/apache2/conf/httpd.conf &&
+             sed -i 's/#LoadModule proxy_fcgi_module/LoadModule proxy_fcgi_module/' /usr/local/apache2/conf/httpd.conf &&
+             httpd-foreground"
+    depends_on:
+      - php
+
+volumes:
+  db_data:
