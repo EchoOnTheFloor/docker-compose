@@ -11,15 +11,16 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: rootpassword
+    # utilisation du flag :z pour autoriser l'access aux volumes au containers par SELinux
     volumes:
-      - db_data:/var/lib/mysql:Z
+      - db_data:/var/lib/mysql:z
 
   # Service PHP
   php:
     build: ./php
     container_name: php-container
     volumes:
-      - ./src:/var/www/html:Z
+      - ./src:/var/www/html:z
     depends_on:
       - db
 
@@ -30,9 +31,9 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./src:/var/www/html:Z
-      - ./apache/my-vhost.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf:Z
-    # On modifie la conf principale d'Apache pour inclure notre vhost et charger les modules proxy
+      - ./src:/var/www/html:z
+      - ./apache/my-vhost.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf:z
+    # Ajout du fichier vhost et charge les modules proxy
     command: >
       sh -c "echo 'Include conf/extra/httpd-vhosts.conf' >> /usr/local/apache2/conf/httpd.conf &&
              sed -i 's/#LoadModule proxy_module/LoadModule proxy_module/' /usr/local/apache2/conf/httpd.conf &&
