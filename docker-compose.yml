@@ -12,14 +12,14 @@ services:
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: rootpassword
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql:Z
 
   # Service PHP
   php:
     build: ./php
     container_name: php-container
     volumes:
-      - ./src:/var/www/html
+      - ./src:/var/www/html:Z
     depends_on:
       - db
 
@@ -30,8 +30,8 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./src:/var/www/html
-      - ./apache/my-vhost.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./src:/var/www/html:Z
+      - ./apache/my-vhost.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf:Z
     # On modifie la conf principale d'Apache pour inclure notre vhost et charger les modules proxy
     command: >
       sh -c "echo 'Include conf/extra/httpd-vhosts.conf' >> /usr/local/apache2/conf/httpd.conf &&
